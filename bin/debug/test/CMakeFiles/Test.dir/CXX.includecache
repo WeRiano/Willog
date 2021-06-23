@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../../include/ProgBar.hpp
+Willog.hpp
+../../include/Willog.hpp
+
+../../include/Willog.hpp
+iostream
+-
+sstream
+-
+string
+-
+Windows.h
+-
+
+C:/Dev/Cpp/CLion/Willog/test/Test.cpp
+Willog.hpp
+C:/Dev/Cpp/CLion/Willog/test/Willog.hpp
+ProgBar.hpp
+C:/Dev/Cpp/CLion/Willog/test/ProgBar.hpp
+chrono
+-
+thread
+-
+

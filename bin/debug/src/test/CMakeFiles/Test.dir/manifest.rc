@@ -1,0 +1,2 @@
+#pragma code_page(65001)
+1 /* CREATEPROCESS_MANIFEST_RESOURCE_ID */ 24 /* RT_MANIFEST */ "C:/Dev/Cpp/CLion/Willog/bin/debug/src/test/CMakeFiles/Test.dir/embed.manifest"
