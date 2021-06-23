@@ -1,0 +1,4 @@
+C:\Users\WeRiano\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\211.7442.42\bin\cmake\win\bin\cmake.exe -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - NMake Makefiles" C:\Dev\Cpp\CLion\willog
+-- Configuring done
+-- Generating done
+-- Build files have been written to: C:/Dev/Cpp/CLion/Willog/bin/release
