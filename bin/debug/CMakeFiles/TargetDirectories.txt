@@ -1,5 +1,0 @@
-C:/Dev/Cpp/CLion/Willog/bin/debug/CMakeFiles/edit_cache.dir
-C:/Dev/Cpp/CLion/Willog/bin/debug/CMakeFiles/rebuild_cache.dir
-C:/Dev/Cpp/CLion/Willog/bin/debug/test/CMakeFiles/rebuild_cache.dir
-C:/Dev/Cpp/CLion/Willog/bin/debug/test/CMakeFiles/Test.dir
-C:/Dev/Cpp/CLion/Willog/bin/debug/test/CMakeFiles/edit_cache.dir
