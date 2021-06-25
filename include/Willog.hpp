@@ -1,36 +1,25 @@
 #pragma once
 
 #include <iostream>
-#include <sstream>
 #include <string>
 
 #if defined(_WIN32) || defined(_WIN64)
-#include <Windows.h>
-HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-#define SET_BLACK() SetConsoleTextAttribute(hConsole, 0);
-#define SET_WHITE() SetConsoleTextAttribute(hConsole, 15);
-#define SET_BLUE() SetConsoleTextAttribute(hConsole, 9);
-#define SET_GREEN() SetConsoleTextAttribute(hConsole, 10);
-#define SET_CYAN() SetConsoleTextAttribute(hConsole, 11);
-#define SET_RED() SetConsoleTextAttribute(hConsole, 12);
-#define SET_PURPLE() SetConsoleTextAttribute(hConsole, 13);
-#define SET_YELLOW() SetConsoleTextAttribute(hConsole, 14);
-#define SET_GREY() SetConsoleTextAttribute(hConsole, 8);
+    #include <Windows.h>
 #else
-#error Unsupported platform (only supports windows 32 or 64 (for now!))
+    #error Unsupported platform (only supports windows 32 or 64 (for now!))
 #endif
 
 namespace Willog {
 
+    enum LogColor
+    {
+        BLACK, WHITE, BLUE, GREEN, CYAN,
+        RED, PURPLE, YELLOW, GREY
+    };
+
     enum LogLevel
     {
-        OFF = 0,
-        FATAL = 1,
-        ERR = 2,
-        WARN = 3,
-        INFO = 4,
-        DEBUG = 5,
-        TRACE = 6,
+        OFF = 0, FATAL = 1, ERR = 2, WARN = 3, INFO = 4, DEBUG = 5, TRACE = 6,
         ALL = 7
     };
 
@@ -40,6 +29,9 @@ namespace Willog {
         static bool s_ShowFP;
         static bool s_ShowLine;
         static LogLevel s_Level;
+
+    public:
+        static HANDLE s_Console;
 
     public:
         inline static bool CheckLevel(LogLevel l)
@@ -59,13 +51,14 @@ namespace Willog {
         inline static bool IsLineShowing() { return s_ShowLine; }
     };
 
-    LogLevel State::s_Level = LogLevel::ALL;
-    bool State::s_ShowFP = true;
-    bool State::s_ShowLine = true;
+    inline LogLevel State::s_Level = LogLevel::ALL;
+    inline HANDLE State::s_Console;
+    inline bool State::s_ShowFP = true;
+    inline bool State::s_ShowLine = true;
 
-    State s_LOG_INST;
+    inline State s_LOG_INST;
 
-    void Init()
+    inline void Init()
     {
 #if defined(_WIN32) || defined(_WIN64)
         SetConsoleOutputCP(CP_UTF8);
@@ -78,9 +71,10 @@ namespace Willog {
         std::cout.tie(NULL); // ... and vise-versa
 
         s_LOG_INST = State();
+        State::s_Console = GetStdHandle(STD_OUTPUT_HANDLE);
     }
 
-    void LogMsg(LogLevel level, std::string s)
+    static inline void LogMsg(LogLevel level, std::string s)
     {
         if (State::CheckLevel(level))
         {
@@ -101,40 +95,69 @@ namespace Willog {
     inline void HideLine() { State::HideLine(); }
     inline void ShowLine() { State::ShowLine(); }
 
-    void Fatal(std::string s)
+    static inline int GetColorAttrib(LogColor color) // Get Color code?
     {
-        SET_RED();
+        switch (color) {
+            case BLACK:
+                return 0;
+            case WHITE:
+                return 15;
+            case BLUE:
+                return 9;
+            case GREEN:
+                return 10;
+            case CYAN:
+                return 11;
+            case RED:
+                return 12;
+            case PURPLE:
+                return 13;
+            case YELLOW:
+                return 14;
+            case GREY:
+                return 8;
+        }
+    }
+
+    inline void SetColor(LogColor color)
+    {
+        SetConsoleTextAttribute(State::s_Console, GetColorAttrib(color));
+    }
+
+    inline void Fatal(std::string s)
+    {
+        SetColor(RED);
         s = "FATAL: " + s;
         LogMsg(LogLevel::FATAL, s);
     }
-    void Error(std::string s) {
-        SET_RED();
+    inline void Error(std::string s) {
+        SetColor(RED);
         s = "ERROR: " + s;
         LogMsg(LogLevel::ERR, s);
     }
-    void Warning(std::string s)
+    inline void Warning(std::string s)
     {
-        SET_YELLOW();
+        SetColor(YELLOW);
         s = "WARN: " + s;
         LogMsg(LogLevel::WARN, s);
     }
-    void Info(std::string s) {
-        SET_WHITE();
+    inline void Info(std::string s) {
+        SetColor(WHITE);
         s = "INFO: " + s;
         LogMsg(LogLevel::INFO, s);
     }
-    void Debug(std::string s) {
-        SET_GREEN();
+    inline void Debug(std::string s) {
+        SetColor(GREEN);
         s = "DEBUG: " + s;
         LogMsg(LogLevel::DEBUG, s);
     }
-    void Trace(std::string s) {
-        SET_WHITE();
+    inline void Trace(std::string s) {
+        SetColor(WHITE);
         s = "TRACE: " + s;
         LogMsg(LogLevel::TRACE, s);
     }
 
-    double Clamp(double v, double max, double min)
+    inline double Clamp(double v, double max, double min)
     {
         if(v > max)
         {
@@ -147,7 +170,7 @@ namespace Willog {
         }
     }
 
-    double RoundOff(double value, unsigned char prec)
+    inline double RoundOff(double value, unsigned char prec)
     {
         double pow_10 = pow(10.0f, (float)prec);
         return round(value * pow_10) / pow_10;
