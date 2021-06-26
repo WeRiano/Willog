@@ -136,42 +136,63 @@ namespace Willog {
         }
     }
 
-    static inline void SetColor(LogColor color)
+    static inline short SetColor(LogColor color)
     {
-        SetConsoleTextAttribute(State::s_Console, GetColorAttrib(color));
+        #if defined(_WIN32) || defined(_WIN64)
+            CONSOLE_SCREEN_BUFFER_INFO info;
+            GetConsoleScreenBufferInfo(State::s_Console, &info); // TODO: Error handling
+            SetConsoleTextAttribute(State::s_Console, GetColorAttrib(color));
+            return info.wAttributes;
+        #endif
+    }
+
+    static inline short SetColor(unsigned int colorAttrib)
+    {
+        #if defined(_WIN32) || defined(_WIN64)
+        CONSOLE_SCREEN_BUFFER_INFO info;
+        GetConsoleScreenBufferInfo(State::s_Console, &info); // TODO: Error handling
+        SetConsoleTextAttribute(State::s_Console, colorAttrib);
+        return info.wAttributes;
+        #endif
     }
 
     inline void Fatal(std::string s, std::source_location sl = std::source_location::current())
     {
-        SetColor(RED);
+        auto oldColor = SetColor(RED);
         s = "FATAL: " + s;
         LogMsg(LogLevel::FATAL, s, LogInfo(sl.file_name(), sl.function_name(), sl.line()));
+        SetColor(oldColor);
     }
     inline void Error(std::string s, std::source_location sl = std::source_location::current()) {
-        SetColor(RED);
+        auto oldColor = SetColor(RED);
         s = "ERROR: " + s;
         LogMsg(LogLevel::ERR, s, LogInfo(sl.file_name(), sl.function_name(), sl.line()));
+        SetColor(oldColor);
     }
     inline void Warning(std::string s, std::source_location sl = std::source_location::current())
     {
-        SetColor(YELLOW);
+        auto oldColor = SetColor(YELLOW);
         s = "WARN: " + s;
         LogMsg(LogLevel::WARN, s, LogInfo(sl.file_name(), sl.function_name(), sl.line()));
+        SetColor(oldColor);
     }
     inline void Info(std::string s, std::source_location sl = std::source_location::current()) {
-        SetColor(WHITE);
+        auto oldColor = SetColor(WHITE);
         s = "INFO: " + s;
         LogMsg(LogLevel::INFO, s, LogInfo(sl.file_name(), sl.function_name(), sl.line()));
+        SetColor(oldColor);
     }
     inline void Debug(std::string s, std::source_location sl = std::source_location::current()) {
-        SetColor(GREEN);
+        auto oldColor = SetColor(GREEN);
         s = "DEBUG: " + s;
         LogMsg(LogLevel::DEBUG, s, LogInfo(sl.file_name(), sl.function_name(), sl.line()));
+        SetColor(oldColor);
     }
     inline void Trace(std::string s, std::source_location sl = std::source_location::current()) {
-        SetColor(WHITE);
+        auto oldColor = SetColor(WHITE);
         s = "TRACE: " + s;
         LogMsg(LogLevel::TRACE, s, LogInfo(sl.file_name(), sl.function_name(), sl.line()));
+        SetColor(oldColor);
     }
 
     inline double Clamp(double v, double max, double min)
