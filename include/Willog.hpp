@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <format>
 
 #define __cpp_consteval
 #include <source_location>
@@ -11,6 +12,11 @@
 #else
     #error Unsupported platform (only supports windows 32 or 64 (for now!))
 #endif
+
+/*
+static inline void PrepareMsg(const char* fileName, unsigned int line, const char* funcName,
+                              LogColor color, LogLevel level, const std::string& prefix,
+                              const std::string& msg, Args... args) */
 
 namespace Willog {
 
@@ -84,24 +90,6 @@ namespace Willog {
         State::s_Console = GetStdHandle(STD_OUTPUT_HANDLE);
     }
 
-    static inline void LogMsg(LogLevel level, std::string s, LogInfo info)
-    {
-        if (State::CheckLevel(level))
-        {
-            if(State::IsFPShowing()) {
-                std::cout << "[" << info.fileName << "] ";
-            }
-            if(State::IsFuncShowing())
-            {
-                std::cout << "[" << info.functionName << "] ";
-            }
-            if(State::IsLineShowing()) {
-                std::cout << "(Line: " << info.line << ") ";
-            }
-            std::cout << s << '\n';
-        }
-    }
-
     // These exist because I dont want the user to have to use the State class. TODO: Maybe rethink?
     inline void SetLogLevel(LogLevel level) { State::SetLevel(level); }
     inline LogLevel GetLogLevel() { return State::GetLevel(); }
@@ -156,6 +144,39 @@ namespace Willog {
         #endif
     }
 
+    template <typename... Args>
+    static inline void PrepareMsg(const char* fileName, unsigned int line, const char* funcName,
+                                  LogColor color, LogLevel level, const std::string& prefix,
+                                  const std::string& msg, Args... args)
+    {
+        auto oldColor = SetColor(color);
+        LogInfo info = LogInfo(std::string(fileName), std::string(funcName), line);
+        LogMsg(level, info, prefix + msg, args...);
+        SetColor(oldColor);
+    }
+
+    template <typename... Args>
+    static inline void LogMsg(LogLevel level, LogInfo info, std::string s, Args... args)
+    {
+        if (State::CheckLevel(level))
+        {
+            if(State::IsFPShowing()) {
+                std::cout << "[" << info.fileName << "] ";
+            }
+            if(State::IsFuncShowing())
+            {
+                std::cout << "[" << info.functionName << "] ";
+            }
+            if(State::IsLineShowing()) {
+                std::cout << "(Line: " << info.line << ") ";
+            }
+            std::cout << std::vformat(s, std::make_format_args(args...)) << '\n';
+        }
+    }
+
+    /*
+     * Deprecated, saving for the future when we can avoid macros perhaps ...
+     *
     inline void Fatal(std::string s, std::source_location sl = std::source_location::current())
     {
         auto oldColor = SetColor(RED);
@@ -163,6 +184,7 @@ namespace Willog {
         LogMsg(LogLevel::FATAL, s, LogInfo(sl.file_name(), sl.function_name(), sl.line()));
         SetColor(oldColor);
     }
+
     inline void Error(std::string s, std::source_location sl = std::source_location::current()) {
         auto oldColor = SetColor(RED);
         s = "ERROR: " + s;
@@ -194,6 +216,7 @@ namespace Willog {
         LogMsg(LogLevel::TRACE, s, LogInfo(sl.file_name(), sl.function_name(), sl.line()));
         SetColor(oldColor);
     }
+     */
 
     inline double Clamp(double v, double max, double min)
     {
@@ -214,3 +237,10 @@ namespace Willog {
         return round(value * pow_10) / pow_10;
     }
 }
+
+#define WILLOG_TRACE(s, ...) PrepareMsg(__FILE__, __LINE__, __func__, Willog::LogColor::WHITE, Willog::LogLevel::TRACE, "TRACE: ", s, __VA_ARGS__)
+#define WILLOG_DEBUG(s, ...) PrepareMsg(__FILE__, __LINE__, __func__, Willog::LogColor::GREEN, Willog::LogLevel::DEBUG, "DEBUG: ", s, __VA_ARGS__)
+#define WILLOG_INFO(s, ...) PrepareMsg(__FILE__, __LINE__, __func__, Willog::LogColor::WHITE, Willog::LogLevel::INFO, "INFO: ", s, __VA_ARGS__)
+#define WILLOG_WARN(s, ...) PrepareMsg(__FILE__, __LINE__, __func__, Willog::LogColor::YELLOW, Willog::LogLevel::WARN, "WARNING: ", s, __VA_ARGS__)
+#define WILLOG_ERROR(s, ...) PrepareMsg(__FILE__, __LINE__, __func__, Willog::LogColor::RED, Willog::LogLevel::ERR, "ERROR: ", s, __VA_ARGS__)
+#define WILLOG_FATAL(s, ...) PrepareMsg(__FILE__, __LINE__, __func__, Willog::LogColor::RED, Willog::LogLevel::FATAL, "FATAL: ", s, __VA_ARGS__)
