@@ -4,19 +4,11 @@
 #include <string>
 #include <format>
 
-#define __cpp_consteval
-#include <source_location>
-
 #if defined(_WIN32) || defined(_WIN64)
     #include <Windows.h>
 #else
     #error Unsupported platform (only supports windows 32 or 64 (for now!))
 #endif
-
-/*
-static inline void PrepareMsg(const char* fileName, unsigned int line, const char* funcName,
-                              LogColor color, LogLevel level, const std::string& prefix,
-                              const std::string& msg, Args... args) */
 
 namespace Willog {
 
@@ -50,7 +42,9 @@ namespace Willog {
         inline static LogLevel s_Level = LogLevel::ALL;
 
     public:
+        #if defined(_WIN32) || defined(_WIN64)
         inline static HANDLE s_Console;
+        #endif
 
     public:
         inline static bool CheckLevel(LogLevel l)
@@ -78,16 +72,18 @@ namespace Willog {
 
     inline void Init()
     {
-#if defined(_WIN32) || defined(_WIN64)
+        #if defined(_WIN32) || defined(_WIN64)
         SetConsoleOutputCP(CP_UTF8);
-#endif
+        #endif
         // Make output faster by ...
         std::ios::sync_with_stdio(false); // toggle on or off the synchronization of all the C++ standard streams with their corresponding standard C streams
         std::cin.tie(NULL); // guarantee the flushing of std::cout before std::cin accepts an input
         std::cout.tie(NULL); // ... and vise-versa
 
         s_LOG_INST = State();
+        #if defined(_WIN32) || defined(_WIN64)
         State::s_Console = GetStdHandle(STD_OUTPUT_HANDLE);
+        #endif
     }
 
     // These exist because I dont want the user to have to use the State class. TODO: Maybe rethink?
@@ -100,6 +96,7 @@ namespace Willog {
     inline void HideFunc() { State::HideFunc(); }
     inline void ShowFunc() { State::ShowFunc(); }
 
+    #if defined(_WIN32) || defined(_WIN64)
     static inline int GetColorAttrib(LogColor color) // "GetColorCode"
     {
         switch (color) {
@@ -123,26 +120,25 @@ namespace Willog {
                 return 8;
         }
     }
+    #endif
 
+    #if defined(_WIN32) || defined(_WIN64)
     static inline short SetColor(LogColor color)
     {
-        #if defined(_WIN32) || defined(_WIN64)
             CONSOLE_SCREEN_BUFFER_INFO info;
             GetConsoleScreenBufferInfo(State::s_Console, &info); // TODO: Error handling
             SetConsoleTextAttribute(State::s_Console, GetColorAttrib(color));
             return info.wAttributes;
-        #endif
     }
 
     static inline short SetColor(unsigned int colorAttrib)
     {
-        #if defined(_WIN32) || defined(_WIN64)
         CONSOLE_SCREEN_BUFFER_INFO info;
         GetConsoleScreenBufferInfo(State::s_Console, &info); // TODO: Error handling
         SetConsoleTextAttribute(State::s_Console, colorAttrib);
         return info.wAttributes;
-        #endif
     }
+    #endif
 
     template <typename... Args>
     static inline void PrepareMsg(const char* fileName, unsigned int line, const char* funcName,
