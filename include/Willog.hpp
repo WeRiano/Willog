@@ -189,12 +189,7 @@ namespace Willog {
             if(State::IsLineShowing()) {
                 logInfoOutput += "(" + std::to_string(info.line) + ") ";
             }
-            try
-            {
-                std::cout << std::vformat(logInfoOutput + msg, std::make_format_args(args...)) << std::endl;
-            } catch (std::exception e) {
-                std::cout << e.what() << std::endl;
-            }
+            std::cout << std::vformat(logInfoOutput + msg, std::make_format_args(args...)) << std::endl;
         }
     }
 
