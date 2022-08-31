@@ -16,14 +16,14 @@ namespace Willog {
     {
         std::string fileName, functionName, filePath;
         unsigned int line;
-        LogInfo(std::string fileNameAndPath, std::string funcName, unsigned int line)
+        LogInfo(const std::string& fileNameAndPath, std::string funcName, unsigned int line)
             : functionName(std::move(funcName)), line(line)
         {
             SplitFilePathAndName(fileNameAndPath);
         }
 
-        void SplitFilePathAndName(std::string fileNameAndPath) {
-            std::size_t fileNameStart = fileNameAndPath.find_last_of("\\") + 1;
+        void SplitFilePathAndName(const std::string& fileNameAndPath) {
+            std::size_t fileNameStart = fileNameAndPath.find_last_of('\\') + 1;
             if (fileNameStart == std::string::npos) {
 
             }
@@ -113,7 +113,7 @@ namespace Willog {
     inline void ShowFunc() { State::ShowFunc(); }
 
     #if defined(_WIN32) || defined(_WIN64)
-    static inline int GetColorAttrib(LogColor color) // "GetColorCode"
+    static inline int GetColorAttrib(const LogColor& color) // "GetColorCode"
     {
         switch (color) {
             case BLACK:
@@ -141,7 +141,7 @@ namespace Willog {
     #endif
 
     #if defined(_WIN32) || defined(_WIN64)
-    static inline short SetColor(LogColor color)
+    static inline short SetColor(const LogColor& color)
     {
             CONSOLE_SCREEN_BUFFER_INFO info;
             GetConsoleScreenBufferInfo(State::s_Console, &info); // TODO: Error handling
@@ -161,17 +161,17 @@ namespace Willog {
     // TODO: Misleading function name!!! We are sending it here too
     template <typename... Args>
     static inline void PrepareMsg(const char* fileName, unsigned int line, const char* funcName,
-                                  LogColor color, LogLevel level, const std::string& prefix,
+                                  const LogColor& color, const LogLevel& level, const std::string& prefix,
                                   const std::string& msg, Args... args)
     {
         auto oldColor = SetColor(color);
-        LogInfo info = LogInfo(std::string(fileName), std::string(funcName), line);
+        const LogInfo info = LogInfo(std::string(fileName), std::string(funcName), line);
         LogMsg(level, info, prefix + msg, args...);
         SetColor(oldColor);
     }
 
     template <typename... Args>
-    static inline void LogMsg(LogLevel level, const LogInfo& info, const std::string& msg, Args... args)
+    static inline void LogMsg(const LogLevel& level, const LogInfo& info, const std::string& msg, Args... args)
     {
         if (State::CheckLevel(level))
         {
