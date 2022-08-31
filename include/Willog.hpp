@@ -24,9 +24,6 @@ namespace Willog {
 
         void SplitFilePathAndName(const std::string& fileNameAndPath) {
             std::size_t fileNameStart = fileNameAndPath.find_last_of('\\') + 1;
-            if (fileNameStart == std::string::npos) {
-
-            }
             filePath = fileNameAndPath.substr(0, fileNameStart - 1);
             fileName = fileNameAndPath.substr(fileNameStart);
         };
