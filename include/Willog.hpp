@@ -16,7 +16,8 @@ namespace Willog {
     {
         std::string fileName, functionName, filePath;
         unsigned int line;
-        LogInfo(const std::string& fileNameAndPath, std::string funcName, unsigned int line)
+        LogInfo(const std::string& fileNameAndPath, std::string funcName,
+                unsigned int line)
             : functionName(std::move(funcName)), line(line)
         {
             SplitFilePathAndName(fileNameAndPath);
@@ -91,13 +92,12 @@ namespace Willog {
         std::cin.tie(NULL); // guarantee the flushing of std::cout before std::cin accepts an input
         std::cout.tie(NULL); // ... and vise-versa
 
-        //s_LOG_INST = State();
         #if defined(_WIN32) || defined(_WIN64)
         State::s_Console = GetStdHandle(STD_OUTPUT_HANDLE);
         #endif
     }
 
-    // These exist because I dont want the user to have to use the State class. TODO: Maybe rethink?
+    // These exist because I don't want the user to have to use the State class.
     inline void SetLogLevel(LogLevel level) { State::SetLevel(level); }
     inline LogLevel GetLogLevel() { return State::GetLevel(); }
     inline void HideFP() { State::HideFP(); }
@@ -155,10 +155,14 @@ namespace Willog {
     }
     #endif
 
-    // TODO: Misleading function name!!! We are sending it here too
+    // TODO: Misleading function name! Message is being printed here as well
     template <typename... Args>
-    static inline void PrepareMsg(const char* fileName, unsigned int line, const char* funcName,
-                                  const LogColor& color, const LogLevel& level, const std::string& prefix,
+    static inline void PrepareMsg(const char* fileName,
+                                  unsigned int line,
+                                  const char* funcName,
+                                  const LogColor& color,
+                                  const LogLevel& level,
+                                  const std::string& prefix,
                                   const std::string& msg, Args... args)
     {
         auto oldColor = SetColor(color);
@@ -168,7 +172,9 @@ namespace Willog {
     }
 
     template <typename... Args>
-    static inline void LogMsg(const LogLevel& level, const LogInfo& info, const std::string& msg, Args... args)
+    static inline void LogMsg(const LogLevel& level,
+                              const LogInfo& info,
+                              const std::string& msg, Args... args)
     {
         if (State::CheckLevel(level))
         {
@@ -186,7 +192,8 @@ namespace Willog {
             if(State::IsLineShowing()) {
                 logInfoOutput += "(" + std::to_string(info.line) + ") ";
             }
-            std::cout << std::vformat(logInfoOutput + msg, std::make_format_args(args...)) << std::endl;
+            std::cout << std::vformat(logInfoOutput +
+                         msg, std::make_format_args(args...)) << std::endl;
         }
     }
 
